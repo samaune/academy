@@ -1,0 +1,5 @@
+development:
+  storage: s3
+production:
+  storage: local
+  path_prefix: uploads/files

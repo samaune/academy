@@ -1,0 +1,5 @@
+production:
+  config:
+    canvas:
+      rich-content-service:
+        app-host: <%= ENV.fetch('CANVAS_RCE_URL', 'http://canvaslms.local/rce') %>"

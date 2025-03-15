@@ -1,0 +1,9 @@
+production:
+  domain:           "<%= ENV.fetch('CANVAS_LMS_DOMAIN', 'canvaslms.local') %>"
+  address:          "<%= ENV.fetch('CANVAS_LMS_SMTP_HOST', 'host.docker.internal') %>"
+  port:             "<%= ENV.fetch('CANVAS_LMS_SMTP_PORT', '587') %>"
+  user_name:        "<%= ENV.fetch('CANVAS_LMS_SMTP_EMAIL', 'academy@host.docker.internal') %>"
+  password:         "<%= ENV.fetch('CANVAS_LMS_SMTP_PASSWORD', 'changesecret') %>"
+  authentication:   "login"
+  outgoing_address: "<%= ENV.fetch('CANVAS_LMS_SMTP_EMAIL', 'canvaslms@host.docker.internal') %>"
+  default_name:     "<%= ENV.fetch('CANVAS_LMS_SMTP_ACCOUNT_NAME', 'CanvasLMS') %>"

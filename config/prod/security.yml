@@ -1,0 +1,3 @@
+production:
+  encryption_key: <%= ENV.fetch('ENCRYPTION_KEY', 'fbcdd2a171fff8988b14f6e4e01039c93cfa0171') %>
+  lti_iss:        "https://<%= ENV.fetch('CANVAS_LMS_DOMAIN', 'https://canvas.instructure.com') %>"

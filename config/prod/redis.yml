@@ -1,0 +1,2 @@
+production:
+  url: <%= ENV.fetch('REDIS_URL', 'redis://redis') %>
