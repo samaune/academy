@@ -159,7 +159,7 @@
 #          "type": "object"
 #        },
 #        "public_jwk_url": {
-#          "description": "(LTI keys only) The tool-hosted URL containing its public JWK keyset. Canvas may cache JWKs up to 5 minutes.",
+#          "description": "(LTI keys only) The tool-hosted URL containing its public JWK keyset.",
 #          "example": "https://mytool.com/1_3/jwks",
 #          "type": "string"
 #        },

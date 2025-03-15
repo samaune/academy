@@ -23,7 +23,6 @@ import fetchMock from 'fetch-mock'
 import {FAKE_FILES, FAKE_FOLDERS} from '../../../fixtures/fakeData'
 import {userEvent} from '@testing-library/user-event'
 import {Folder, File} from '../../../interfaces/File'
-import {destroyContainer} from '@canvas/alerts/react/FlashAlert'
 
 const defaultProps: {
   isOpen: boolean
@@ -46,7 +45,6 @@ describe('RenameModal', () => {
 
   afterEach(() => {
     fetchMock.restore()
-    destroyContainer()
   })
 
   describe('when renaming a file', () => {
@@ -61,86 +59,46 @@ describe('RenameModal', () => {
     })
 
     it('does not send api call when name is the same', async () => {
-      const user = userEvent.setup()
       renderComponent()
       expect(await screen.findByText(`Rename`)).toBeInTheDocument()
-      await user.click(screen.getByRole('button', {name: 'Save'}))
+      screen.getByText('Save').click()
       await waitFor(() => {
         expect(fetchMock.calls()).toHaveLength(0)
+        expect(defaultProps.onClose).toHaveBeenCalled()
       })
-      expect(defaultProps.onClose).toHaveBeenCalled()
     })
 
     it('validates correctly', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup({delay: null})
       renderComponent()
       const input = screen.getByLabelText('File Name *')
-      await user.clear(input)
       await user.type(input, 'filewith/character')
-      await user.click(screen.getByRole('button', {name: 'Save'}))
+      screen.getByText('Save').click()
       expect(await screen.findByText(`File name cannot contain /`)).toBeInTheDocument()
       await user.clear(input)
-      await user.click(screen.getByRole('button', {name: 'Save'}))
+      screen.getByText('Save').click()
       expect(await screen.findByText(`File name cannot be blank`)).toBeInTheDocument()
     })
 
     it('validates a name of all spaces correctly', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup({delay: null})
       renderComponent()
       const input = screen.getByLabelText('File Name *')
       await user.clear(input)
       await user.type(input, ' ')
-      await user.click(screen.getByRole('button', {name: 'Save'}))
+      screen.getByText('Save').click()
       expect(await screen.findByText(`File name cannot be blank`)).toBeInTheDocument()
     })
 
     it('successfully saves a valid new filename', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup({delay: null})
       renderComponent()
       const input = screen.getByLabelText('File Name *')
-      await user.clear(input)
       await user.type(input, 'validfilename')
-      await user.click(screen.getByRole('button', {name: 'Save'}))
+      screen.getByText('Save').click()
 
       await waitFor(() => {
-        expect(fetchMock.calls()[0][0]).toBe(`/api/v1/files/${defaultProps.renamingItem.id}`)
-      })
-    })
-
-    it('displays loading spinner when submitting', async () => {
-      const user = userEvent.setup()
-      fetchMock.put(`/api/v1/files/${FAKE_FILES[0].id}`, new Promise(() => {}), {
-        overwriteRoutes: true,
-      })
-      renderComponent()
-      const input = screen.getByRole('textbox', {name: 'File Name *'})
-      await user.clear(input)
-      await user.type(input, 'a')
-      await user.click(screen.getByRole('button', {name: 'Save'}))
-      expect(screen.getByTestId('rename-spinner')).toBeInTheDocument()
-      expect(screen.getByRole('button', {name: 'Cancel'})).toBeDisabled()
-      expect(screen.getByRole('button', {name: 'Save'})).toBeDisabled()
-    })
-
-    it('does not close when there is an error', async () => {
-      const user = userEvent.setup()
-      fetchMock.put(`/api/v1/files/${FAKE_FILES[0].id}`, 500, {overwriteRoutes: true})
-      renderComponent()
-      const input = screen.getByRole('textbox', {name: 'File Name *'})
-      await user.clear(input)
-      await user.type(input, 'a')
-      await user.click(screen.getByRole('button', {name: 'Save'}))
-      expect(defaultProps.onClose).not.toHaveBeenCalled()
-    })
-
-    it('submits on enter', async () => {
-      const user = userEvent.setup()
-      renderComponent()
-      const input = screen.getByRole('textbox', {name: 'File Name *'})
-      await user.clear(input)
-      await user.type(input, 'validfilename')
-      await user.type(input, '{enter}')
-      await waitFor(() => {
+        expect(fetchMock.calls()).toHaveLength(1)
         expect(fetchMock.calls()[0][0]).toBe(`/api/v1/files/${defaultProps.renamingItem.id}`)
       })
     })
@@ -158,47 +116,46 @@ describe('RenameModal', () => {
     })
 
     it('does not send api call when name is the same', async () => {
-      const user = userEvent.setup()
       renderComponent()
       expect(await screen.findByText(`Rename`)).toBeInTheDocument()
-      await user.click(screen.getByRole('button', {name: 'Save'}))
+      screen.getByText('Save').click()
       await waitFor(() => {
         expect(fetchMock.calls()).toHaveLength(0)
+        expect(defaultProps.onClose).toHaveBeenCalled()
       })
-      expect(defaultProps.onClose).toHaveBeenCalled()
     })
 
     it('validates correctly', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup({delay: null})
       renderComponent()
       const input = screen.getByLabelText('Folder Name *')
-      await user.clear(input)
       await user.type(input, 'folderwith/character')
-      await user.click(screen.getByRole('button', {name: 'Save'}))
+      screen.getByText('Save').click()
       expect(await screen.findByText(`Folder name cannot contain /`)).toBeInTheDocument()
       await user.clear(input)
-      await user.click(screen.getByRole('button', {name: 'Save'}))
+      screen.getByText('Save').click()
       expect(await screen.findByText(`Folder name cannot be blank`)).toBeInTheDocument()
     })
 
     it('validates a name of all spaces correctly', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup({delay: null})
       renderComponent()
       const input = screen.getByLabelText('Folder Name *')
       await user.clear(input)
       await user.type(input, ' ')
-      await user.click(screen.getByRole('button', {name: 'Save'}))
+      screen.getByText('Save').click()
       expect(await screen.findByText(`Folder name cannot be blank`)).toBeInTheDocument()
     })
 
     it('successfully saves a valid new folder name', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup({delay: null})
       renderComponent()
       const input = screen.getByLabelText('Folder Name *')
-      await user.clear(input)
       await user.type(input, 'validfoldername')
-      await user.click(screen.getByRole('button', {name: 'Save'}))
+      screen.getByText('Save').click()
+
       await waitFor(() => {
+        expect(fetchMock.calls()).toHaveLength(1)
         expect(fetchMock.calls()[0][0]).toBe(`/api/v1/folders/${defaultProps.renamingItem.id}`)
       })
     })

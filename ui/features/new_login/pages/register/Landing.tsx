@@ -60,34 +60,31 @@ const Landing = () => {
             <Flex direction={isTabletOrLarger ? 'row' : 'column'} gap="small">
               <Flex.Item shouldGrow={true}>
                 <Card
-                  compact={!isTabletOrLarger}
-                  href={ROUTES.REGISTER_TEACHER}
                   icon={iconTeacher}
-                  label={I18n.t('Create Teacher Account')}
-                  onClick={handleNavigate(ROUTES.REGISTER_TEACHER)}
                   text={I18n.t('Teacher')}
+                  href={ROUTES.REGISTER_TEACHER}
+                  onClick={handleNavigate(ROUTES.REGISTER_TEACHER)}
+                  compact={!isTabletOrLarger}
                 />
               </Flex.Item>
 
               <Flex.Item shouldGrow={true}>
                 <Card
-                  compact={!isTabletOrLarger}
-                  href={ROUTES.REGISTER_STUDENT}
                   icon={iconStudent}
-                  label={I18n.t('Create Student Account')}
-                  onClick={handleNavigate(ROUTES.REGISTER_STUDENT)}
                   text={I18n.t('Student')}
+                  href={ROUTES.REGISTER_STUDENT}
+                  onClick={handleNavigate(ROUTES.REGISTER_STUDENT)}
+                  compact={!isTabletOrLarger}
                 />
               </Flex.Item>
 
               <Flex.Item shouldGrow={true}>
                 <Card
-                  compact={!isTabletOrLarger}
-                  href={ROUTES.REGISTER_PARENT}
                   icon={iconParent}
-                  label={I18n.t('Create Parent Account')}
-                  onClick={handleNavigate(ROUTES.REGISTER_PARENT)}
                   text={I18n.t('Parent')}
+                  href={ROUTES.REGISTER_PARENT}
+                  onClick={handleNavigate(ROUTES.REGISTER_PARENT)}
+                  compact={!isTabletOrLarger}
                 />
               </Flex.Item>
             </Flex>

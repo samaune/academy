@@ -26,7 +26,7 @@ import {FileManagementContext} from '../Contexts'
 import {type File, type Folder} from '../../../interfaces/File'
 import {RenameModal} from '../RenameModal'
 import DeleteModal from './DeleteModal'
-import {downloadFile, downloadZip} from '../../../utils/downloadUtils'
+import { downloadFile, downloadZip } from '../../../utils/downloadUtils'
 
 import {
   IconMoreLine,
@@ -42,7 +42,6 @@ import {
 } from '@instructure/ui-icons'
 import DirectShareUserTray from './DirectShareUserTray'
 import DirectShareCourseTray from './DirectShareCourseTray'
-import MoveModal from './MoveModal'
 
 const I18n = createI18nScope('files_v2')
 
@@ -61,12 +60,22 @@ const ActionMenuButton = ({
   usageRightsRequiredForContext,
   row,
 }: ActionMenuButtonProps) => {
-  const [modalOrTray, setModalOrTray] = useState<
-    'rename' | 'delete' | 'copy-to' | 'send-to' | 'move-to' | null
-  >(null)
+  const [modal, setModal] = useState<'send-to' | 'copy-to' | null>(null)
   const actionLabel = I18n.t('Actions')
   const currentContext = useContext(FileManagementContext)
   const contextType = currentContext?.contextType
+  const [isRenameModalOpen, setIsRenameModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [itemsToDelete, setItemsToDelete] = useState<(File | Folder)[]>([])
+
+  const handleDeleteClick = () => {
+    setItemsToDelete([row])
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+  }
 
   const triggerButton = useCallback(() => {
     return size !== 'large' ? (
@@ -138,7 +147,7 @@ const ActionMenuButton = ({
               icon: IconEditLine,
               text: I18n.t('Rename'),
               visible: rename_move_permissions,
-              onClick: () => setModalOrTray('rename'),
+              onClick: () => setIsRenameModalOpen(true),
             },
             {
               icon: IconDownloadLine,
@@ -159,27 +168,21 @@ const ActionMenuButton = ({
               icon: IconUserLine,
               text: I18n.t('Send To...'),
               visible: send_copy_permissions,
-              onClick: () => setModalOrTray('send-to'),
+              onClick: () => setModal('send-to'),
             },
             {
               icon: IconDuplicateLine,
               text: I18n.t('Copy To...'),
               visible: send_copy_permissions,
-              onClick: () => setModalOrTray('copy-to'),
+              onClick: () => setModal('copy-to'),
             },
             {
               icon: IconExpandItemsLine,
               text: I18n.t('Move To...'),
               visible: rename_move_permissions,
-              onClick: () => setModalOrTray('move-to'),
             },
             {separator: true, visible: delete_permissions},
-            {
-              icon: IconTrashLine,
-              text: I18n.t('Delete'),
-              visible: delete_permissions,
-              onClick: () => setModalOrTray('delete'),
-            },
+            {icon: IconTrashLine, text: I18n.t('Delete'), visible: delete_permissions, onClick: handleDeleteClick},
           ]
         : [
             // folder
@@ -187,7 +190,7 @@ const ActionMenuButton = ({
               icon: IconEditLine,
               text: I18n.t('Rename'),
               visible: rename_move_permissions,
-              onClick: () => setModalOrTray('rename'),
+              onClick: () => setIsRenameModalOpen(true),
             },
             {
               icon: IconDownloadLine,
@@ -208,15 +211,9 @@ const ActionMenuButton = ({
               icon: IconExpandItemsLine,
               text: I18n.t('Move To...'),
               visible: rename_move_permissions,
-              onClick: () => setModalOrTray('move-to'),
             },
             {separator: true, visible: delete_permissions},
-            {
-              icon: IconTrashLine,
-              text: I18n.t('Delete'),
-              visible: delete_permissions,
-              onClick: () => setModalOrTray('delete'),
-            },
+            {icon: IconTrashLine, text: I18n.t('Delete'), visible: delete_permissions, onClick: handleDeleteClick},
           ]
       ).filter(({visible}) => visible !== false),
     [
@@ -229,7 +226,7 @@ const ActionMenuButton = ({
     ],
   )
 
-  const onDismissModalOrTray = useCallback(() => setModalOrTray(null), [])
+  const onDismissTray = useCallback(() => setModal(null), [])
 
   const buildTrays = useCallback(() => {
     let file
@@ -240,49 +237,40 @@ const ActionMenuButton = ({
       <>
         {file && ENV.COURSE_ID && (
           <DirectShareUserTray
-            open={modalOrTray === 'send-to'}
-            onDismiss={onDismissModalOrTray}
+            open={modal === 'send-to'}
+            onDismiss={onDismissTray}
             courseId={ENV.COURSE_ID}
             file={file}
           />
         )}
         {file && ENV.COURSE_ID && (
           <DirectShareCourseTray
-            open={modalOrTray === 'copy-to'}
-            onDismiss={onDismissModalOrTray}
+            open={modal === 'copy-to'}
+            onDismiss={onDismissTray}
             courseId={ENV.COURSE_ID}
             file={file}
           />
         )}
       </>
     )
-  }, [modalOrTray, onDismissModalOrTray, row])
-
-  const buildModals = useCallback(() => {
-    return (
-      <>
-        <RenameModal
-          renamingItem={row}
-          isOpen={modalOrTray === 'rename'}
-          onClose={onDismissModalOrTray}
-        />
-        <DeleteModal open={modalOrTray === 'delete'} items={[row]} onClose={onDismissModalOrTray} />
-        <MoveModal
-          items={[row]}
-          open={modalOrTray === 'move-to'}
-          onDismiss={onDismissModalOrTray}
-        />
-      </>
-    )
-  }, [modalOrTray, onDismissModalOrTray, row])
+  }, [modal, onDismissTray, row])
 
   return (
     <>
       <Menu placement="bottom" trigger={triggerButton()}>
         {filteredItems.map((item, i) => renderMenuItem(i, item))}
       </Menu>
+      <RenameModal
+        renamingItem={row}
+        isOpen={isRenameModalOpen}
+        onClose={() => setIsRenameModalOpen(false)}
+      />
+      <DeleteModal
+        open={isModalOpen}
+        items={itemsToDelete}
+        onClose={handleCloseModal}
+      />
       {buildTrays()}
-      {buildModals()}
     </>
   )
 }

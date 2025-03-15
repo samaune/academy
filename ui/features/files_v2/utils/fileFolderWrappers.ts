@@ -35,12 +35,6 @@ export class FileFolderWrapper {
   }
 
   get<T>(attribute: string) {
-    if (attribute === 'display_name')
-      return (
-        this.fileOrFolder['display_name'] ||
-        this.fileOrFolder['filename'] ||
-        this.fileOrFolder['name']
-      )
     return this.fileOrFolder[attribute] as T
   }
 
@@ -50,9 +44,9 @@ export class FileFolderWrapper {
 }
 
 export class FileFolderCollectionWrapper extends Array<FileFolderWrapper> {
-  private readonly folder: BBFolderWrapper
+  private readonly folder: MainFolderWrapper
 
-  constructor(folder: BBFolderWrapper) {
+  constructor(folder: MainFolderWrapper) {
     super()
     this.folder = folder
   }
@@ -95,7 +89,7 @@ export class FileFolderCollectionWrapper extends Array<FileFolderWrapper> {
   }
 }
 
-export class BBFolderWrapper {
+export class MainFolderWrapper {
   private readonly folder: Folder
   private readonly filesFoldersCollection: FileFolderCollectionWrapper
   private readonly listeners: Set<MainFolderWrapperListener>

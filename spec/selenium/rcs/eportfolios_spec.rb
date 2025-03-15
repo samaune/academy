@@ -273,7 +273,7 @@ describe "eportfolios file upload" do
     fj(".file_upload:visible").send_keys(fullpath)
     wait_for_ajaximations
     f(".upload_file_button").click
-    f("[data-testid='save-page']").click
+    submit_form(".form_content")
   end
 
   def verify_file_upload

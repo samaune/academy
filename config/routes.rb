@@ -1111,11 +1111,6 @@ CanvasRails::Application.routes.draw do
     post "courses/:course_id/translate/paragraph", action: :translate_paragraph, as: :translate_paragraph
   end
 
-  scope(controller: "lti/asset_processor_launch") do
-    get "asset_processors/:asset_processor_id/launch", action: :launch_settings, as: :asset_processor_settings_launch
-    get "asset_processors/:asset_processor_id/reports/:report_id/launch", action: :launch_report, as: :asset_report_launch
-  end
-
   ### API routes ###
 
   # TODO: api routes can't yet take advantage of concerns for DRYness, because of
@@ -2925,8 +2920,8 @@ CanvasRails::Application.routes.draw do
 
     # Asset Service & Asset Report Service (LTI Asset Processor Specs)
     scope(controller: "lti/ims/asset_processor") do
-      post "asset_processors/:asset_processor_id/reports", action: :create_report, as: :lti_asset_processor_create_report
-      get "asset_processors/:asset_processor_id/assets/:asset_id", action: :lti_asset_show, as: :lti_asset_processor_asset_show
+      post "asset_processor/:asset_processor_id/report", action: :create_report, as: :lti_asset_processor_create_report
+      get "asset_processor/:asset_processor_id/asset/:asset_id", action: :lti_asset_show, as: :lti_asset_processor_asset_show
     end
 
     # Dynamic Registration Service

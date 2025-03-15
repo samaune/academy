@@ -71,9 +71,6 @@ module CanvasHttp
 
   class ResponseTooLargeError < CanvasHttp::Error; end
 
-  UPSTREAM_HTTP_ERRORS = [Timeout::Error, SocketError, SystemCallError, OpenSSL::SSL::SSLError].freeze
-  ALL_HTTP_ERRORS = [CanvasHttp::Error, *UPSTREAM_HTTP_ERRORS].freeze
-
   def self.put(...)
     CanvasHttp.request(Net::HTTP::Put, ...)
   end

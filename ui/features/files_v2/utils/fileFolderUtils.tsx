@@ -51,7 +51,3 @@ export const getIcon = (
     )
   }
 }
-
-export const getName = (item: File | Folder) => {
-  return isFile(item) ? item.display_name : item.name
-}

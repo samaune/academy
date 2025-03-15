@@ -30,7 +30,7 @@ import {useQuery, queryClient} from '@canvas/query'
 import {type File, type Folder} from '../../../interfaces/File'
 import {type ColumnHeader} from '../../../interfaces/FileFolderTable'
 import {parseLinkHeader} from '../../../utils/apiUtils'
-import {getUniqueId} from '../../../utils/fileFolderUtils'
+import {isFile, getUniqueId} from '../../../utils/fileFolderUtils'
 import SubTableContent from './SubTableContent'
 import ActionMenuButton from './ActionMenuButton'
 import NameLink from './NameLink'
@@ -40,6 +40,7 @@ import renderTableHead from './RenderTableHead'
 import renderTableBody from './RenderTableBody'
 import BulkActionButtons from './BulkActionButtons'
 import Breadcrumbs from './Breadcrumbs'
+import getCookie from '@instructure/get-cookie'
 import CurrentUploads from '../FilesHeader/CurrentUploads'
 import {View} from '@instructure/ui-view'
 import {FileManagementContext} from '../Contexts'
@@ -143,7 +144,7 @@ const columnRenderers: {
     size,
     isSelected,
     toggleSelect,
-  }: {
+}: {
     row: File | Folder
     isStacked: boolean
     userCanEditFilesForContext: boolean
@@ -232,7 +233,7 @@ const FileFolderTable = ({
   const [sortColumn, setSortColumn] = useState<string>('name')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | 'none'>('asc')
 
-  const {data, error, isLoading, isFetching} = useQuery({
+  const { data, error, isLoading, isFetching } = useQuery({
     queryKey: ['files', currentUrl],
     queryFn: () => {
       setSelectedRows(new Set())
@@ -242,7 +243,7 @@ const FileFolderTable = ({
       return fetchFilesAndFolders(currentUrl, onLoadingStatusChange)
     },
     staleTime: 0,
-    onSuccess: ({links}) => {
+    onSuccess: ({ links }) => {
       onPaginationLinkChange(links)
     },
     onSettled: result => {
@@ -359,14 +360,14 @@ const FileFolderTable = ({
         </Flex.Item>
       </Flex>
     )
-  }, [
-    size,
+}, [
     folderBreadcrumbs,
-    searchString,
+    rows.length,
     selectedRows,
-    rows,
-    userCanEditFilesForContext,
+    size,
     userCanDeleteFilesForContext,
+    userCanEditFilesForContext,
+    searchString,
   ])
 
   const tableCaption = I18n.t(

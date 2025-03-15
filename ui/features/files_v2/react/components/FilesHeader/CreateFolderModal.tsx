@@ -27,18 +27,15 @@ import {FileManagementContext} from '../Contexts'
 import {generateFolderPostUrl} from '../../../utils/apiUtils'
 import getCookie from '@instructure/get-cookie'
 import {showFlashError, showFlashSuccess} from '@canvas/alerts/react/FlashAlert'
-import {View} from '@instructure/ui-view'
-import {Spinner} from '@instructure/ui-spinner'
 
 const I18n = createI18nScope('files_v2')
 
-interface CreateFolderModalProps {
+interface AddFolderModalProps {
   isOpen: boolean
   onRequestClose: () => void
 }
 
-const CreateFolderModal = ({isOpen, onRequestClose}: CreateFolderModalProps) => {
-  const [folderName, setFolderName] = useState('')
+const CreateFolderModal = ({isOpen, onRequestClose}: AddFolderModalProps) => {
   const [isRequestInFlight, setIsRequestInFlight] = useState(false)
   const {folderId: parentFolderId} = useContext(FileManagementContext)
 
@@ -73,22 +70,20 @@ const CreateFolderModal = ({isOpen, onRequestClose}: CreateFolderModalProps) => 
     },
   })
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const target = e.target as HTMLFormElement
+    const folderNameElement = target.elements.namedItem('folderName') as HTMLInputElement | null
+    const folderName = folderNameElement ? folderNameElement.value : ''
     createFolderMutation.mutate(folderName)
-  }
-
-  const handleExited = () => {
-    setFolderName('')
-    setIsRequestInFlight(false)
   }
 
   return (
     <Modal
-      as="div"
+      as="form"
       open={isOpen}
       onDismiss={onRequestClose}
       onSubmit={handleSubmit}
-      onExited={handleExited}
       label={I18n.t('Create Folder')}
       shouldCloseOnDocumentClick
       size="small"
@@ -103,34 +98,13 @@ const CreateFolderModal = ({isOpen, onRequestClose}: CreateFolderModalProps) => 
         <Heading level="h2">{I18n.t('Create Folder')}</Heading>
       </Modal.Header>
       <Modal.Body>
-        {isRequestInFlight ? (
-          <View as="div" textAlign="center">
-            <Spinner
-              renderTitle={() => I18n.t('Creating folder')}
-              margin="0 0 0 medium"
-              aria-live="polite"
-              data-testid="create-folder-spinner"
-            />
-          </View>
-        ) : (
-          <TextInput
-            renderLabel={I18n.t('Folder Name')}
-            name="folderName"
-            value={folderName}
-            onChange={(_e, newValue) => setFolderName(newValue)}
-            onKeyDown={e => {
-              if (e.key === 'Enter') {
-                handleSubmit()
-              }
-            }}
-          />
-        )}
+        <TextInput renderLabel={I18n.t('Folder Name')} name="folderName" />
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={onRequestClose} disabled={isRequestInFlight} margin="0 x-small 0 0">
+        <Button onClick={onRequestClose} margin="0 x-small 0 0">
           {I18n.t('Cancel')}
         </Button>
-        <Button color="primary" onClick={handleSubmit} disabled={isRequestInFlight}>
+        <Button color="primary" type="submit" disabled={isRequestInFlight}>
           {I18n.t('Create Folder')}
         </Button>
       </Modal.Footer>

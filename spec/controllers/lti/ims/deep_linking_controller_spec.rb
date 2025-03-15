@@ -326,41 +326,44 @@ module Lti
         end
 
         context "when a url is used to get public key" do
-          include WebMock::API
-
           let(:rsa_key_pair) { CanvasSecurity::RSAKeyPair.new }
           let(:url) { "https://get.public.jwk" }
-          let(:public_jwk_url_response_code) { 200 }
-          let(:public_jwk_url_response_string) do
+          let(:public_jwk_url_response) do
             {
               keys: [
                 public_jwk
               ]
-            }.to_json
+            }
           end
+          let(:stubbed_response) { double(success?: true, parsed_response: public_jwk_url_response) }
 
           before do
-            stub_request(:get, url).to_return(
-              status: public_jwk_url_response_code,
-              body: public_jwk_url_response_string
-            )
-
-            developer_key.update!(public_jwk_url: url)
+            allow(HTTParty).to receive(:get).with(url).and_return(stubbed_response)
           end
 
           context "when there is no public jwk" do
-            before { developer_key.update!(public_jwk: nil) }
+            before do
+              developer_key.update!(public_jwk: nil, public_jwk_url: url)
+            end
 
             it { is_expected.to be_successful }
           end
 
           context "when there is a public jwk" do
+            before do
+              developer_key.update!(public_jwk_url: url)
+            end
+
             it { is_expected.to be_successful }
           end
 
           context "when an empty object is returned" do
-            let(:public_jwk_url_response_string) { {}.to_json }
+            let(:public_jwk_url_response) { {} }
             let(:response_message) { "JWT verification failure" }
+
+            before do
+              developer_key.update!(public_jwk_url: url)
+            end
 
             it do
               subject
@@ -368,31 +371,22 @@ module Lti
             end
           end
 
-          context "when the url returns a non-2xx response but the JWT is still valid" do
-            # Historical behavior. Judging from old specs, possibly not
-            # intended, but it's been like this since 2019 (see fa1b233eff),
-            # so tools may be relying on it...
-            let(:public_jwk_url_response_code) { 404 }
-
-            it { is_expected.to be_successful }
-          end
-
-          context "when the url response is not a valid JWT" do
-            let(:public_jwk_url_response_string) { "foo" }
+          context "when the url is not valid giving a 404" do
+            let(:stubbed_response) { double(success?: false, parsed_response: public_jwk_url_response.to_json) }
             let(:response_message) { "JWT verification failure" }
+            let(:public_jwk_url_response) do
+              {
+                success?: false, code: "404"
+              }
+            end
+
+            before do
+              developer_key.update!(public_jwk_url: url)
+            end
 
             it do
               subject
               expect(json_parse["errors"].to_s).to include response_message
-            end
-          end
-
-          context "when there is a socket error fetching the public_jwk_url" do
-            it "returns an error" do
-              expect(CanvasHttp).to receive(:get).with(url).and_raise(Socket::ResolutionError.new)
-              subject
-
-              expect(json_parse["errors"].to_s).to include "JWT verification failure"
             end
           end
         end

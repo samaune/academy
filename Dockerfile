@@ -10,7 +10,7 @@ LABEL maintainer="Instructure"
 ARG RUBY
 ARG POSTGRES_CLIENT=14
 ENV APP_HOME /usr/src/app/
-ENV RAILS_ENV production
+ENV RAILS_ENV development
 ENV SASS_STYLE compressed
 ENV RAILS_LOAD_ALL_LOCALES=1
 ENV NGINX_MAX_UPLOAD_SIZE 10g
@@ -80,7 +80,8 @@ ENV COMPILE_ASSETS_BRAND_CONFIGS=0
 ENV COMPILE_ASSETS_NPM_INSTALL=0
 RUN unset RUBY && bundle config --global build.nokogiri --use-system-libraries && \
   bundle config --global build.ffi --enable-system-libffi
-  
+
+RUN gem install scrypt -v 3.0.8
 RUN gem install rake
 RUN bundle install
 
@@ -88,4 +89,4 @@ RUN yarn install --pure-lockfile || yarn install --pure-lockfile --network-concu
 RUN yarn gulp rev
 RUN bin/rails canvas:compile_assets --trace
 
-COPY --chown=docker:docker . /usr/src/app
+RUN cp -r ./config/prod/*.yml ./config

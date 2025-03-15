@@ -24,13 +24,23 @@ import {Text} from '@instructure/ui-text'
 import {Heading} from '@instructure/ui-heading'
 import {TextInput} from '@instructure/ui-text-input'
 import {View} from '@instructure/ui-view'
-import {type ResolvedName, type FileOptions} from './FileOptions'
+import {type FileOptions} from './FileOptions'
 
 type FileRenameFormProps = {
   open: boolean
   onClose: () => void
   fileOptions: FileOptions
-  onNameConflictResolved: (resolvedName: ResolvedName) => void
+  onNameConflictResolved: ({
+    file,
+    dup,
+    name,
+    expandZip,
+  }: {
+    file: File
+    dup: string
+    name: string
+    expandZip: boolean
+  }) => void
 }
 
 const I18n = createI18nScope('files_v2')

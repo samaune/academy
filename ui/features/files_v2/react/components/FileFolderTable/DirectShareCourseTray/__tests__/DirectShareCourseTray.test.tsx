@@ -140,9 +140,8 @@ describe('DirectShareCourseTray', () => {
     expect(useCourseModuleItemApi).not.toHaveBeenCalled()
   })
 
-  // skip due to jenkins failure RCX-3088 & RCX-3098
-  describe.skip('errors', () => {
-    it('shows an error when user tries to submit without a selected course', async () => {
+  describe('errors', () => {
+    it.skip('shows an error when user tries to submit without a selected course', async () => {
       renderComponent()
       await userEvent.click(screen.getByTestId('direct-share-course-copy'))
       expect(screen.getByLabelText(/a course needs to be selected/i)).toBeInTheDocument()
