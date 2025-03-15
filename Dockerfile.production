@@ -12,7 +12,7 @@ ARG POSTGRES_CLIENT=14
 ENV APP_HOME /usr/src/app/
 ENV RAILS_ENV production
 ENV SASS_STYLE compressed
-env RAILS_LOAD_ALL_LOCALES=1
+ENV RAILS_LOAD_ALL_LOCALES=1
 ENV NGINX_MAX_UPLOAD_SIZE 10g
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
@@ -29,6 +29,7 @@ ENV BUNDLE_APP_CONFIG /home/docker/.bundle
 WORKDIR $APP_HOME
 
 USER root
+RUN usermod -aG sudo docker
 RUN mkdir -p /etc/apt/keyrings \
   && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
   && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_MAJOR}.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
@@ -51,7 +52,9 @@ RUN mkdir -p /etc/apt/keyrings \
        unzip \
        pbzip2 \
        \
+       nano \
        git \
+       openssh-client \
        build-essential \
   && rm -rf /var/lib/apt/lists/* \
   && mkdir -p /home/docker/.gem/ruby/$RUBY_MAJOR.0
@@ -63,15 +66,24 @@ RUN npm install -g npm@9.8.1 && npm cache clean --force
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 RUN corepack enable && corepack prepare yarn@1.19.1 --activate
 
+RUN echo '%docker ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN mkdir -p /usr/src/repo
+RUN chown -R docker:docker /usr/src/repo
+
 USER docker
 
 COPY --chown=docker:docker . /usr/src/app
 RUN mkdir -p tmp/files
-ENV COMPILE_ASSETS_BRAND_CONFIGS=0
-ENV COMPILE_ASSETS_NPM_INSTALL=0
+# ENV COMPILE_ASSETS_BRAND_CONFIGS=0
+# ENV COMPILE_ASSETS_NPM_INSTALL=0
 RUN unset RUBY && bundle config --global build.nokogiri --use-system-libraries && \
-  bundle config --global build.ffi --enable-system-libffi && \
-  bundle install
-RUN yarn install --frozen-lockfile || yarn install --frozen-lockfile --network-concurrency 1 && \
-  bin/rails canvas:compile_assets --trace && \
-  rm -rf node_modules
+  bundle config --global build.ffi --enable-system-libffi
+  
+#RUN sed -i 's/^[[:blank:]]*gem "scrypt", "~> 3.0"/#&/' ./Gemfile.d/app.rb
+RUN gem install rake
+RUN bundle install
+#RUN sed -Ei 's/^#([[:blank:]]*gem "scrypt", "~> 3.0")/\1/' ./Gemfile.d/app.rb
+
+RUN yarn install --pure-lockfile || yarn install --pure-lockfile --network-concurrency 1 
+RUN yarn gulp rev
+RUN bin/rails canvas:compile_assets --trace
