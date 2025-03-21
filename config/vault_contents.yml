@@ -1,0 +1,9 @@
+production:
+  "app-canvas/data/secrets":
+    data:
+      canvas_security:
+        encryption_secret:  "<%= ENV.fetch('ENCRYPTION_SETCRET', '') %>"
+        signing_secret:     "<%= ENV.fetch('SINGING_SECRET', '') %>"
+      canvas_cdn_creds:
+        aws_access_key_id: "<%= ENV.fetch('S3_ACCESS_KEY', 'minioadmin') %>"
+        aws_secret_access_key: "<%= ENV.fetch('S3_SECRET_KEY', 'minioadmin') %>"

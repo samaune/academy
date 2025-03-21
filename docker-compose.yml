@@ -1,22 +1,52 @@
-# See doc/docker/README.md or https://github.com/instructure/canvas-lms/tree/master/doc/docker
+
 services:
   web: &WEB
-    build:
-      context: .
+    image: yimsamaune/lms:1.0.0
     links:
-      - postgres
       - redis
+    extra_hosts:
+    - "svr-singha:172.20.10.4"
+    env_file:
+      - path: .env
     environment:
-      POSTGRES_PASSWORD: sekret
-
-  jobs:
-    <<: *WEB
-    command: bundle exec script/delayed_job run
-
-  postgres:
-    build: ./docker-compose/postgres
-    environment:
-      POSTGRES_PASSWORD: sekret
-
+      RAILS_ENV: production
+      NODE_ENV: production
+    command:
+      - /bin/sh
+      - -c
+      - |
+        echo "Starting process..."
+        sleep 36000
+        echo "Process finished."
+    # exec passenger start --address 0.0.0.0 -p 3000 --app-type rack --startup-file config.ru --environment production
+    volumes:
+      - ./config/domain.yml:/usr/src/app/config/domain.yml
+      - ./config/canvas_cdn.yml:/usr/src/app/config/canvas_cdn.yml
+    
+    ports:
+      - "3000:3000"
+  # jobs:
+  #   <<: *WEB
+  #   command: bundle exec script/delayed_job run
   redis:
     image: redis:alpine
+  minio:
+    image: quay.io/minio/minio:RELEASE.2025-03-12T18-04-18Z
+    command: server /data --console-address "0.0.0.0:9001"
+    hostname: minio
+    expose:
+      - "9000"
+      - "9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+        - ./data:/data
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5

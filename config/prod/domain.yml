@@ -1,3 +1,0 @@
-production:
-  domain: "<%= ENV.fetch('CANVAS_LMS_DOMAIN', 'canvaslms.local') %>"
-  ssl   : true

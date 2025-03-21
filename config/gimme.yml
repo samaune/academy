@@ -1,0 +1,12 @@
+admin:
+  user: admin
+  password: ""
+port: 8080 # (default 8080)
+secret: ""
+s3:
+  url: "localhost:9000"
+  key: "admin"
+  secret: ""
+  bucketName: lmscdn
+  location: us-east-1
+  ssl: false

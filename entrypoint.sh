@@ -1,0 +1,1 @@
+exec passenger start --address 0.0.0.0 -p 3000 --app-type rack --startup-file config.ru --environment production

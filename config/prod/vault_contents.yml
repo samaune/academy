@@ -1,6 +1,0 @@
-production:
-  "app-canvas/data/secrets":
-    data:
-      canvas_security:
-        encryption_secret:  "<%= ENV.fetch('ENCRYPTION_SETCRET', '') %>"
-        signing_secret:     "<%= ENV.fetch('SINGING_SECRET', '') %>"
